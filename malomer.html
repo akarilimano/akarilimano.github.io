@@ -54,11 +54,17 @@ $(function() {
 		smooth: 4,
 		phSize: 15,
 	};
-	let angle = {x: 600, y: 150, alpha: 10, beta: 65, radius: 100};  // 0 <= Alpha <= Beta <= 360
+	let angle = {
+		x: field.w-200,
+		y: 150,
+		alpha: 10,
+		beta: 65,
+		radius: 100
+	};  // 0 <= Alpha <= Beta <= 360
 	let minimumAngle = 20;
 	let angleChange = 10;
 	var polarPhi = 0;
-	var angleCleared = false;
+	var isAngleCleared = false;
 	var isAngleBroken = false;
 	var isOnAngle = false;
 	var isPaused = false;
@@ -79,7 +85,7 @@ $(function() {
 			shortName: 'ru',
 			pause: 'Отдыхаем',
 			score: 'Очки: ',
-			scoreHealed: 'Вылечено углов: ',
+			scoreHealed: 'Вылечил углов: ',
 			bottmHint: "Пауза: 'Пробел'",
 		},
 		en: {
@@ -162,7 +168,7 @@ $(function() {
 		let startX = ml.x+mouth.x-Math.sin((x+y)/300)*2+end.x/60;
 		let startY = ml.y+30+end.y/60;
 		let endX = startX+ml.x-mouth.x+mouth.w+Math.cos((x+y)/300+timeSeed)*2;
-		if (angleCleared) {
+		if (isAngleCleared) {
 			ctx.moveTo(startX, startY-2);
 			ctx.arcTo(startX, startY, startX+2, startY, 2);
 			ctx.arcTo(endX, startY+1, endX, startY-2, 2);
@@ -206,7 +212,7 @@ $(function() {
 	};
 
 	let drawAngle = function() {
-		if (angleCleared || isPaused) {
+		if (isAngleCleared || isPaused) {
 				return;
 		}
 		ctx.strokeStyle = eyeColor;
@@ -231,16 +237,16 @@ $(function() {
 	};
 
 	let drawScene = function() {
-		ctx.clearRect(0,0,theCanvas.width,theCanvas.height);
+		ctx.clearRect(0, 0, field.w, field.h);
 		// draw background
 		ctx.fillStyle = mainColor;
-		ctx.fillRect(0, 0, theCanvas.width, theCanvas.height);
+		ctx.fillRect(0, 0, field.w, field.h);
 		ctx.fillStyle = backColor;
 		ctx.beginPath();
-		ctx.moveTo(0, theCanvas.height-80);
-		ctx.bezierCurveTo(theCanvas.width/3, theCanvas.height-100, theCanvas.width*2/3, theCanvas.height-50, theCanvas.width, theCanvas.height-80);
-		ctx.lineTo(theCanvas.width, theCanvas.height);
-		ctx.lineTo(0, theCanvas.height);
+		ctx.moveTo(0, field.h-80);
+		ctx.bezierCurveTo(field.w/3, field.h-100, field.w*2/3, field.h-50, field.w, field.h-80);
+		ctx.lineTo(field.w, field.h);
+		ctx.lineTo(0, field.h);
 		ctx.stroke();
 		ctx.fill();
 
@@ -253,25 +259,26 @@ $(function() {
 	};
 	
 	let showText = function() {
-		ctx.font = '32px mono';
+		ctx.font = '32px monospace';
+		ctx.save();
 		ctx.fillStyle = eyeColor;
 		ctx.fillStyle = 'yellow';
 		ctx.fillText(currentLang.score + String(score.value).padStart(10, '0'), 10, 40);
-		ctx.fillText(currentLang.scoreHealed + score.healedNumber, 320, 40);		
+		ctx.fillText(currentLang.scoreHealed + score.healedNumber, 10, 80);		
 		
-		ctx.font = '16px serif';
+		ctx.font = '16px monospace';
 		ctx.fillStyle = eyeColor;
-		ctx.fillText(currentLang.bottmHint, theCanvas.width-120, theCanvas.height-20);
+		ctx.fillText(currentLang.bottmHint, field.w-150, field.h-20);
 		
 		if (isPaused) {
-			ctx.font = '48px serif';
+			ctx.font = '48px monospace';
 			ctx.fillStyle = 'yellow';
 			ctx.fillText(currentLang.pause, (field.w-210)/2, (field.h-30)/2);
 		}
 	}
 
 	let checkAngle = function() {
-		if (angleCleared) {
+		if (isAngleCleared) {
 			// console.debug("Checked, angle was already cleared.");
 			return;
 		}
@@ -295,7 +302,7 @@ $(function() {
 		};
 		
 		if (Math.abs(angle.alpha - angle.beta) % 360 <= 10) {
-			angleCleared = true;
+			isAngleCleared = true;
 			score.healedNumber += 1;
 			score.increaseBy(score.healedAmount);
 			isOnAngle = false;
@@ -304,12 +311,12 @@ $(function() {
 	}
 	
 	let breakAngle = function() {
-		if (angleCleared) {
+		if (isAngleCleared) {
 			return;
 		}
 		if (Math.abs(angle.alpha - angle.beta) < minimumAngle + 5 && angle.alpha < angle.beta){
 			// Angle is too small, lose points
-			console.debug(angle.alpha, angle.beta);
+			// console.debug(angle.alpha, angle.beta);
 			score.reduceBy(score.brokenAmount);
 			isAngleBroken = true;
 			return;
@@ -327,8 +334,8 @@ $(function() {
 			return;
 		}
 
-		let newX = Math.random()*(theCanvas.width - 150)+100;
-		let newY = Math.random()*(theCanvas.height - 250)+100;
+		let newX = Math.random()*(field.w - 150)+100;
+		let newY = Math.random()*(field.h - 250)+100;
 		let newAlpha = Math.random()*(360 - minimumAngle);  // 0-335; [a-25-1; a+25+1]
 		let angleDiff = Math.random()*(360 - 2*(minimumAngle + 5)) + minimumAngle + 5;
 		let newBeta = (newAlpha + angleDiff + 360) % 360;
@@ -341,8 +348,19 @@ $(function() {
 			beta: Math.max(newAlpha, newBeta),
 			radius: newRadius,
 		}
-		angleCleared = false;
+		isAngleCleared = false;
 		console.debug(angle);
+	}
+
+	let handlePause = function() {
+		isPaused = !isPaused;
+
+		// To avoid pause expoiting clear the angle before the pause and make new angle after it
+		isAngleCleared = true;
+		isOnAngle = false;
+		if (!isPaused) {
+			setTimeout(makeNewAngle, 2000);
+		}
 	}
 
 	setInterval(() => {
@@ -365,32 +383,29 @@ $(function() {
 			healAngle();
 		}
 	});
+
+	$('#pause').click(function(e) {
+		handlePause();
+	});
 	
 	$('#lang').on('change', function() {
 		currentLang = lang[this.value];
 	});
-	
+
 	document.body.onkeyup = function(e) {
-		console.debug(e.key, e.code, e.keyCode);
+		// console.debug(e.key, e.code, e.keyCode);
 		if (e.key == " " ||
 			e.code == "Space" ||      
 			e.keyCode == 32      
 		) {
-			isPaused = !isPaused;
-			
-			// To avoid pause expoiting clear the angle before the pause and make new angle after it
-			angleCleared = true;
-			isOnAngle = false;
-			if (!isPaused) {
-				setTimeout(makeNewAngle, 2000);
-			}
+			handlePause();
 		}
 	}
 
 	window.addEventListener('resize', resize);
 	window.addEventListener('touchmove', function(e) {
 		let touches = e.changedTouches[0];
-		console.debug(touches);
+		// console.debug(touches);
 		current = {x: touches.pageX - canvasOffset.left, y: touches.pageY - canvasOffset.top};
 	});
 
@@ -409,6 +424,7 @@ $(function() {
 				<option value="ru">Русский</option>
 				<option value="en">English</option>
 			</select>
+			<button id="pause">Pause</button>
 		</div>
 		<div>Inspired by <a href="https://t.me/mjjir" target="_blank">Мжирь</a></div>
 		<div>Report problems to <a href="https://github.com/akarilimano/akarilimano.github.io/issues" target="_blank">GitHub</a></div>
