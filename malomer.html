@@ -2,8 +2,6 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" class="dj_webkit dj_chrome dj_contentbox"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<!--meta http-equiv="Cache-Control" content="no-cache"-->
-
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 
 <title>
@@ -11,10 +9,6 @@
 </title>
 
 <style type="text/css">
-.strike {
-    text-decoration: line-through;
-}
-
 canvas {
 	cursor: none;
 }
@@ -30,9 +24,8 @@ canvas {
 
 <script>
 $(function() {
-	// There are some bugs, you can post them to: https://github.com/akarilimano/akarilimano.github.io/issues
 	var letsdraw ;
-	let field = {w: 1000, h: 660};
+	let field = {w: 900, h: 650};
 	let ml = {
 		x: 50,
 		y: field.h-100,
@@ -101,16 +94,9 @@ $(function() {
 		ctx.beginPath();
 		ctx.strokeStyle = eyeColor;
 		ctx.fillStyle = mainColor;
-		// ctx.fillRect(ml.x, ml.y, ml.w, ml.h);
-		// ctx.strokeRect(ml.x, ml.y, ml.w, ml.h);
 		ctx.moveTo(ml.x, ml.y);
-		//// ctx.arcTo(ml.x, ml.y+ml.h, ml.x+ml.w, ml.y+ml.h, ml.smooth);
-		//// ctx.arcTo(ml.x+ml.w, ml.y+ml.h, ml.x+ml.w, ml.y, ml.smooth);
-		//// ctx.arcTo(ml.x+ml.w, ml.y, ml.x, ml.y, ml.smooth);
-		//// ctx.arcTo(ml.x, ml.y, ml.x, ml.y+ml.h, ml.smooth);
 		ctx.lineTo(ml.x, ml.y+ml.h);
-		// ctx.fill();
-		// ctx.stroke();
+
 		// legs
 		ctx.fillStyle = mainColor;
 		let legSize = {h: 15, w: 17, thick: 10, footHeight: 6};
@@ -121,12 +107,10 @@ $(function() {
 			{x: ml.w-legSize.thick, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI*3/2}
 		];
 		legs.forEach(leg => {
-			//ctx.beginPath();
-			// ctx.moveTo(ml.x+leg.x, ml.y+ml.h);
 			ctx.lineTo(ml.x+leg.x, ml.y+ml.h);
 			let length = Math.sin((timeSeed)/2+leg.phi)*2;
 			let round = 3;
-			// ctx.lineTo(ml.x+leg.x, ml.y+ml.h+leg.h+length-round);
+
 			ctx.arcTo(ml.x+leg.x, ml.y+ml.h+leg.h+length, ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length, round);  // p
 			ctx.lineTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length);  // n
 			ctx.arcTo(
@@ -134,20 +118,16 @@ $(function() {
 				ml.y+ml.h+leg.h+length - legSize.footHeight,
 				ml.x+leg.x+leg.thick,
 				ml.y+ml.h+leg.h+length - legSize.footHeight,
-				round); // tf
+				round
+			); // tf
 			ctx.arcTo(
 				ml.x+leg.x+leg.thick,
 				ml.y+ml.h+leg.h+length - legSize.footHeight,
 				ml.x+leg.x+leg.thick,
 				ml.y+ml.h,
-				round);  // st
-			//ctx.arcTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h, ml.x+leg.x, ml.y+ml.h+leg.h+length, round);
-			// ctx.lineTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length - leg.thick);
-			// ctx.lineTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h+leg.h+length - leg.thick);
-			ctx.lineTo(ml.x+leg.x+leg.thick, ml.y+ml.h); // ml
-			//ctx.lineTo(ml.x+leg.x, ml.y+ml.h+leg.h+length);
-			/////ctx.fill();
-			////ctx.stroke();
+				round
+			);  // st
+			ctx.lineTo(ml.x+leg.x+leg.thick, ml.y+ml.h); // m
 		});
 		ctx.arcTo(ml.x+ml.w, ml.y, ml.x, ml.y, ml.smooth);
 		ctx.arcTo(ml.x, ml.y, ml.x, ml.y+ml.h, ml.smooth);
@@ -165,7 +145,6 @@ $(function() {
 		let startX = ml.x+mouth.x-Math.sin((x+y)/300)*2+end.x/60;
 		let startY = ml.y+30+end.y/60;
 		let endX = startX+ml.x-mouth.x+mouth.w+Math.cos((x+y)/300+timeSeed)*2;
-		// ctx.fillRect(startX, startY, endX, 2);
 		if (angleCleared) {
 			ctx.moveTo(startX, startY-2);
 			ctx.arcTo(startX, startY, startX+2, startY, 2);
@@ -180,30 +159,19 @@ $(function() {
 			}
 		}
 		ctx.stroke();
-		// ctx.arcTo(ml.x+mouth.x-Math.sin((x+y)/300)*2+end.x/60, ml.y+30+end.y/60, ml.x-mouth.x+mouth.w+Math.cos((x+y)/300+timeSeed)*2, 2);
 
 		// tail
 		ctx.fillStyle = mainColor;
 		ctx.beginPath();
 
 		ctx.moveTo(ml.x, ml.y);
-		// ctx.lineTo(e.pageX - canvasOffset.left, e.pageY - canvasOffset.top);
-		// let curv = {x: Math.abs(ml.x - end.x)/5, y: Math.abs(ml.y - end.y)/5};
 		let r = Math.random();
 		let curv = {x: Math.random()*2+Math.max(Math.abs(ml.x - end.x)/5, 30), y: Math.max(Math.random()*2+Math.abs(ml.y - end.y)/5, 20)};
 
 		let cp1 = {x: ml.x-curv.x, y: ml.y-curv.y};
 		let cp2 = {x: end.x-curv.x, y: end.y+curv.y};
-		// let cp1 = {x: ml.y-curv.y, y: ml.x-curv.y};
-		// let cp2 = {x: end.x+curv.x, y: end.y+curv.y};
 		let midreal = {x: (end.x*3/5+ml.x*2/5), y: (end.y*3/5+ml.y*2/5)};
-		// let mid = {x: (end.x+ml.x)/2, y: (end.y+ml.y)/2};
 		let mid = {x: midreal.x+Math.max(Math.abs(ml.x - end.x)/5, 15)*Math.cos(timeSeed), y: midreal.y+Math.max(Math.abs(ml.y - end.y)/10, 10)*Math.sin(timeSeed)};
-
-		// let mid = {
-		//      x: ((midreal.x+ml.x)*0.9*Math.pow(Math.sin(timeSeed), 2)+(midreal.x+end.x)*0.9*Math.pow(Math.cos(timeSeed), 2)),
-
-		//      y: ((midreal.y+ml.y)*0.9*Math.pow(Math.sin(timeSeed), 2)+(midreal.y+end.y)*0.9*Math.pow(Math.cos(timeSeed), 2))};
 
 		let middif = {x: (cp1.x-cp2.x)/2, y: (cp1.y-cp2.y)/2};
 		let sizeWave = 15;
@@ -218,13 +186,6 @@ $(function() {
 		ctx.moveTo(end.x, end.y);
 		ctx.lineTo(end.x+7, end.y+3);
 		ctx.stroke();
-
-		// ctx.strokeRect(cp1.x, cp1.y, 1, 1);
-		// ctx.strokeRect(cp2.x, cp2.y, 1, 1);
-		// ctx.strokeRect(mid.x, mid.y, 1, 1);
-		// ctx.strokeRect(midreal.x, midreal.y, 1, 1);
-		// ctx.strokeRect(midcp1.x, midcp1.y, 1, 1);
-		// ctx.strokeRect(midcp2.x, midcp2.y, 1, 1);
 	};
 
 	let drawAngle = function() {
@@ -245,15 +206,9 @@ $(function() {
 			ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
 			ctx.beginPath();
 			ctx.ellipse(angle.x, angle.y, angle.radius/10, angle.radius/10, Math.PI*180/180, Math.PI*(180-angle.alpha)/180, Math.PI*(180-angle.beta)/180, true);
-			// ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
-			// ctx.fillStyle="#FFFF00";
-			// ctx.stroke();
 			ctx.fill();
 			ctx.beginPath();
-			ctx.ellipse(angle.x, angle.y, 10, 10, 0, 0, Math.PI*2);
-			// ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
-			// ctx.fillStyle="#FFFF00";
-			// ctx.stroke();
+			ctx.ellipse(angle.x, angle.y, angle.radius/10, angle.radius/10, 0, 0, Math.PI*2);
 			ctx.fill();
 		}
 	};
@@ -271,8 +226,6 @@ $(function() {
 		ctx.lineTo(0, theCanvas.height);
 		ctx.stroke();
 		ctx.fill();
-		// ctx.strokeRect(theCanvas.width/3, theCanvas.height-100, 2, 2);
-		// ctx.strokeRect(theCanvas.width*2/3, theCanvas.height-70, 2, 2);
 
 		// draw actors
 		drawMalomer(current.x, current.y);
@@ -287,11 +240,7 @@ $(function() {
 		ctx.fillStyle = eyeColor;
 		ctx.fillStyle = 'yellow';
 		ctx.fillText(currentLang.score + String(score.value).padStart(10, '0'), 10, 40);
-		ctx.fillText(currentLang.scoreHealed + score.healedNumber, 320, 40);
-		// ctx.fillText('A: ' + angle.alpha, 10, 100);
-		// ctx.fillText('B: ' + angle.beta, 10, 150);
-		// ctx.fillText('Phi: ' + polarPhi, 10, 250);
-		
+		ctx.fillText(currentLang.scoreHealed + score.healedNumber, 320, 40);		
 		
 		ctx.font = '16px serif';
 		ctx.fillStyle = eyeColor;
@@ -306,8 +255,8 @@ $(function() {
 
 	let checkAngle = function() {
 		if (angleCleared) {
-				// console.debug("Checked, angle was already cleared.");
-				return;
+			// console.debug("Checked, angle was already cleared.");
+			return;
 		}
 		isOnAngle = false;
 		let dx = current.x-angle.x;
@@ -315,13 +264,7 @@ $(function() {
 		let polarR = Math.sqrt(dx*dx + dy*dy);
 		if (polarR <= ml.phSize) {
 			// Check the mouse is 'inside' of an angle is broken, so just use a small area around
-			// polarPhi = (Math.atan2(-dy, dx)*180/Math.PI + 360) % 360;
-			// if ((polarPhi > angle.alpha && polarPhi < angle.beta) || (polarPhi > angle.beta && polarPhi < angle.alpha)) {
-
-					// healAngle();
-					isOnAngle = true;
-					// eyeColor = 'red';
-			// }
+			isOnAngle = true;
 		}
 		return;
 	}
@@ -340,7 +283,6 @@ $(function() {
 			score.increaseBy(score.healedAmount);
 			isOnAngle = false;
 			setTimeout(makeNewAngle, 2000);
-			// alert("You scored: " + score + " points!");
 		}
 	}
 	
@@ -396,20 +338,15 @@ $(function() {
 
 	$('#paint').mousemove(function(e) {
 		current = {x: e.pageX - canvasOffset.left, y: e.pageY - canvasOffset.top};
-
-		//drawScene();
 	});
 
 	$('#paint').click(function(e) {
 		if (isPaused) {
 			return;
 		}
-		// current = {x: e.pageX - canvasOffset.left, y: e.pageY - canvasOffset.top};
 		if (isOnAngle) {
 			healAngle();
 		}
-		// checkAngle();
-		//drawScene();
 	});
 	
 	$('#lang').on('change', function() {
@@ -450,7 +387,7 @@ $(function() {
 			</select>
 		</div>
 		<div>Inspired by <a href="https://t.me/mjjir" target="_blank">Мжирь</a></div>
-		<div>Coded by Alex S.</div>
+		<div>Report problems to <a href="https://github.com/akarilimano/akarilimano.github.io/issues" target="_blank">GitHub</a></div>
 	</div>
 
 </body></html>
