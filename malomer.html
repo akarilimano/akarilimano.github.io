@@ -17,8 +17,10 @@ canvas {
 }
 
 body {
-	touch-action: manipulation;
+	touch-action: none;
 	overscroll-behaviour: contain;
+	overflow-y: hidden;
+	
 }
 
 .no_selection {
@@ -84,6 +86,7 @@ $(function() {
 		ru: {
 			name: 'Русский',
 			shortName: 'ru',
+			title: 'Игра в Маломера v1',
 			pause: 'Отдыхаем',
 			score: 'Очки: ',
 			scoreHealed: 'Вылечил углов: ',
@@ -92,14 +95,22 @@ $(function() {
 		en: {
 			name: 'English',
 			shortName: 'en',
+			title: 'Malomer Game v1',
 			pause: 'Chilling',
 			score: 'Score: ',
 			scoreHealed: 'Angles healed: ',
 			bottmHint: 'Pause (Space)',
 		},
 	};
-	var currentLang = lang.ru;
-	$('#pause').text(currentLang.bottmHint);
+
+	var currentLang = null;
+	let setLang = function(name) {
+		currentLang = lang[name];
+		$('#pause').text(currentLang.bottmHint);
+		document.getElementById('lang').value = name;
+		document.title = currentLang.title;
+	}
+	setLang('ru');
 
 	var current = {x: 400, y: 200};
 
@@ -390,8 +401,7 @@ $(function() {
 	});
 	
 	$('#lang').on('change', function() {
-		currentLang = lang[this.value];
-		$('#pause').text(currentLang.bottmHint);
+		setLang(this.value);
 	});
 
 	document.body.onkeyup = function(e) {
