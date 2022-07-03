@@ -11,6 +11,7 @@
 <style type="text/css">
 canvas {
 	cursor: none;
+	border: none;
 }
 
 .no_selection {
@@ -24,8 +25,17 @@ canvas {
 
 <script>
 $(function() {
-	var letsdraw ;
 	let field = {w: 900, h: 650};
+	const theCanvas = document.getElementById('paint');
+	const resize = () => {
+		theCanvas.width = window.innerWidth-50;
+		theCanvas.height = window.innerHeight-100;
+		field.w = theCanvas.width;
+		field.h = theCanvas.height;
+		console.debug(field);
+	}
+	resize();
+
 	let ml = {
 		x: 50,
 		y: field.h-100,
@@ -75,10 +85,7 @@ $(function() {
 
 	var current = {x: 400, y: 200};
 
-	var theCanvas = document.getElementById('paint');
 	var ctx = theCanvas.getContext('2d');
-	theCanvas.width = field.w;
-	theCanvas.height = field.h;
 
 	var canvasOffset = $('#paint').offset();
 
@@ -203,7 +210,7 @@ $(function() {
 		ctx.stroke();
 				
 		if (isOnAngle) {
-			ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+			ctx.fillStyle = 'rgba(255, 255, 0, 0.25)';
 			ctx.beginPath();
 			ctx.ellipse(angle.x, angle.y, angle.radius/10, angle.radius/10, Math.PI*180/180, Math.PI*(180-angle.alpha)/180, Math.PI*(180-angle.beta)/180, true);
 			ctx.fill();
@@ -369,6 +376,13 @@ $(function() {
 			}
 		}
 	}
+
+	window.addEventListener('resize', resize);
+	window.addEventListener('touchmove', function(e) {
+		let touches = e.changedTouches[0];
+		console.debug(touches);
+		current = {x: touches.pageX - canvasOffset.left, y: touches.pageY - canvasOffset.top};
+	});
 
 });
 </script>
