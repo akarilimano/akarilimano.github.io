@@ -7,7 +7,7 @@
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 
 <title>
-    Malomer
+    Игра в маломера v1
 </title>
 
 <style type="text/css">
@@ -18,14 +18,24 @@
 canvas {
 	cursor: none;
 }
+
+.no_selection {
+    user-select: none; /* standard syntax */
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+}
 </style>
 
 <script>
 $(function() {
+	// There are some bugs, you can post them to: https://github.com/akarilimano/akarilimano.github.io/issues
 	var letsdraw ;
+	let field = {w: 1000, h: 660};
 	let ml = {
 		x: 50,
-		y: 500,
+		y: field.h-100,
 		w: 200,
 		h: 50,
 		smooth: 4,
@@ -50,12 +60,32 @@ $(function() {
 	score.increaseBy = (value) => score.value += value;
 	score.reduceBy = (value) => score.value = Math.max(0, score.value-value);  // Score value cannot be less than 0
 
+	let lang = {
+		ru: {
+			name: 'Русский',
+			shortName: 'ru',
+			pause: 'Отдыхаем',
+			score: 'Очки: ',
+			scoreHealed: 'Вылечено углов: ',
+			bottmHint: "Пауза: 'Пробел'",
+		},
+		en: {
+			name: 'English',
+			shortName: 'en',
+			pause: 'Chilling',
+			score: 'Score: ',
+			scoreHealed: 'Angles healed: ',
+			bottmHint: "Pause: 'Space'",
+		},
+	};
+	var currentLang = lang.ru;
+
 	var current = {x: 400, y: 200};
 
 	var theCanvas = document.getElementById('paint');
 	var ctx = theCanvas.getContext('2d');
-	theCanvas.width = 800;
-	theCanvas.height = 600;
+	theCanvas.width = field.w;
+	theCanvas.height = field.h;
 
 	var canvasOffset = $('#paint').offset();
 
@@ -63,7 +93,6 @@ $(function() {
 	let backColor = '#345983';
 	var eyeColor = '#00000c';
 	ctx.lineWidth = 2;
-	ctx.font = '48px serif';
 
 	let drawMalomer = function(x, y) {
 		let timeSeed = Date.now()/400;
@@ -75,8 +104,51 @@ $(function() {
 		// ctx.fillRect(ml.x, ml.y, ml.w, ml.h);
 		// ctx.strokeRect(ml.x, ml.y, ml.w, ml.h);
 		ctx.moveTo(ml.x, ml.y);
-		ctx.arcTo(ml.x, ml.y+ml.h, ml.x+ml.w, ml.y+ml.h, ml.smooth);
-		ctx.arcTo(ml.x+ml.w, ml.y+ml.h, ml.x+ml.w, ml.y, ml.smooth);
+		//// ctx.arcTo(ml.x, ml.y+ml.h, ml.x+ml.w, ml.y+ml.h, ml.smooth);
+		//// ctx.arcTo(ml.x+ml.w, ml.y+ml.h, ml.x+ml.w, ml.y, ml.smooth);
+		//// ctx.arcTo(ml.x+ml.w, ml.y, ml.x, ml.y, ml.smooth);
+		//// ctx.arcTo(ml.x, ml.y, ml.x, ml.y+ml.h, ml.smooth);
+		ctx.lineTo(ml.x, ml.y+ml.h);
+		// ctx.fill();
+		// ctx.stroke();
+		// legs
+		ctx.fillStyle = mainColor;
+		let legSize = {h: 15, w: 17, thick: 10, footHeight: 6};
+		let legs = [
+			{x: 0, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: 0},
+			{x: 30, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI/2},
+			{x: 160, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI},
+			{x: ml.w-legSize.thick, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI*3/2}
+		];
+		legs.forEach(leg => {
+			//ctx.beginPath();
+			// ctx.moveTo(ml.x+leg.x, ml.y+ml.h);
+			ctx.lineTo(ml.x+leg.x, ml.y+ml.h);
+			let length = Math.sin((timeSeed)/2+leg.phi)*2;
+			let round = 3;
+			// ctx.lineTo(ml.x+leg.x, ml.y+ml.h+leg.h+length-round);
+			ctx.arcTo(ml.x+leg.x, ml.y+ml.h+leg.h+length, ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length, round);  // p
+			ctx.lineTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length);  // n
+			ctx.arcTo(
+				ml.x+leg.x+leg.w,
+				ml.y+ml.h+leg.h+length - legSize.footHeight,
+				ml.x+leg.x+leg.thick,
+				ml.y+ml.h+leg.h+length - legSize.footHeight,
+				round); // tf
+			ctx.arcTo(
+				ml.x+leg.x+leg.thick,
+				ml.y+ml.h+leg.h+length - legSize.footHeight,
+				ml.x+leg.x+leg.thick,
+				ml.y+ml.h,
+				round);  // st
+			//ctx.arcTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h, ml.x+leg.x, ml.y+ml.h+leg.h+length, round);
+			// ctx.lineTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length - leg.thick);
+			// ctx.lineTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h+leg.h+length - leg.thick);
+			ctx.lineTo(ml.x+leg.x+leg.thick, ml.y+ml.h); // ml
+			//ctx.lineTo(ml.x+leg.x, ml.y+ml.h+leg.h+length);
+			/////ctx.fill();
+			////ctx.stroke();
+		});
 		ctx.arcTo(ml.x+ml.w, ml.y, ml.x, ml.y, ml.smooth);
 		ctx.arcTo(ml.x, ml.y, ml.x, ml.y+ml.h, ml.smooth);
 		ctx.fill();
@@ -110,37 +182,6 @@ $(function() {
 		ctx.stroke();
 		// ctx.arcTo(ml.x+mouth.x-Math.sin((x+y)/300)*2+end.x/60, ml.y+30+end.y/60, ml.x-mouth.x+mouth.w+Math.cos((x+y)/300+timeSeed)*2, 2);
 
-		// legs
-		ctx.fillStyle = mainColor;
-		let legSize = {h: 15, w: 10, thick: 5};
-		let legs = [
-			{x: 20, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: 0},
-			{x: 50, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI/2},
-			{x: 130, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI},
-			{x: 170, h: legSize.h, w: legSize.w, thick: legSize.thick, phi: Math.PI*3/2}
-		];
-		legs.forEach(leg => {
-			// ctx.fillRect(ml.x+leg.x, ml.y+ml.h, 2, leg.h+Math.sin((timeSeed)/2+leg.phi)*2);
-			// ctx.strokeRect(ml.x+leg.x, ml.y+ml.h, 2, leg.h+Math.sin((timeSeed)/2+leg.phi)*2);
-			// ctx.fillRect(ml.x+leg.x+4, ml.y+ml.h+leg.h-2+Math.sin((timeSeed)/2+leg.phi)*2, leg.w, 2);
-			// ctx.strokeRect(ml.x+leg.x+4, ml.y+ml.h+leg.h-2+Math.sin((timeSeed)/2+leg.phi)*2, leg.w, 2);
-			ctx.beginPath();
-			ctx.moveTo(ml.x+leg.x, ml.y+ml.h);
-			let length = Math.sin((timeSeed)/2+leg.phi)*2;
-			let round = 3;
-			// ctx.lineTo(ml.x+leg.x, ml.y+ml.h+leg.h+length-round);
-			ctx.arcTo(ml.x+leg.x, ml.y+ml.h+leg.h+length, ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length, round);
-			ctx.lineTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length);
-			ctx.arcTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length - leg.thick, ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h+leg.h+length - leg.thick, round);
-			ctx.arcTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h+leg.h+length - leg.thick, ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h, round);
-			//ctx.arcTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h, ml.x+leg.x, ml.y+ml.h+leg.h+length, round);
-			// ctx.lineTo(ml.x+leg.x+leg.w, ml.y+ml.h+leg.h+length - leg.thick);
-			// ctx.lineTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h+leg.h+length - leg.thick);
-			ctx.lineTo(ml.x+leg.x+leg.w-leg.thick, ml.y+ml.h);
-			//ctx.lineTo(ml.x+leg.x, ml.y+ml.h+leg.h+length);
-			ctx.fill();
-			ctx.stroke();
-		});
 		// tail
 		ctx.fillStyle = mainColor;
 		ctx.beginPath();
@@ -177,17 +218,6 @@ $(function() {
 		ctx.moveTo(end.x, end.y);
 		ctx.lineTo(end.x+7, end.y+3);
 		ctx.stroke();
-		/*
-		if (isOnAngle) {
-			ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
-			ctx.beginPath();
-			ctx.ellipse(end.x, end.y, 10, 10, 0, 0, Math.PI*2);
-			// ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
-			// ctx.fillStyle="#FFFF00";
-			// ctx.stroke();
-			ctx.fill();
-		}
-		*/
 
 		// ctx.strokeRect(cp1.x, cp1.y, 1, 1);
 		// ctx.strokeRect(cp2.x, cp2.y, 1, 1);
@@ -229,35 +259,50 @@ $(function() {
 	};
 
 	let drawScene = function() {
-		// isOnAngle = false;
 		ctx.clearRect(0,0,theCanvas.width,theCanvas.height);
-		// drawBack
-		if (isOnAngle) {
-			// ctx.fillStyle = backColor;
-				
-			ctx.globalAlpha = 0.5;
-			ctx.fillStyle = eyeColor;
-			ctx.fillRect(angle.x, angle.y, 40, 40);
-			ctx.globalAlpha = 1;
-		} else {
-			// ctx.fillStyle = mainColor;
-			;
-		}
+		// draw background
 		ctx.fillStyle = mainColor;
-		ctx.fillRect(0,0,theCanvas.width,theCanvas.height);
+		ctx.fillRect(0, 0, theCanvas.width, theCanvas.height);
+		ctx.fillStyle = backColor;
+		ctx.beginPath();
+		ctx.moveTo(0, theCanvas.height-80);
+		ctx.bezierCurveTo(theCanvas.width/3, theCanvas.height-100, theCanvas.width*2/3, theCanvas.height-50, theCanvas.width, theCanvas.height-80);
+		ctx.lineTo(theCanvas.width, theCanvas.height);
+		ctx.lineTo(0, theCanvas.height);
+		ctx.stroke();
+		ctx.fill();
+		// ctx.strokeRect(theCanvas.width/3, theCanvas.height-100, 2, 2);
+		// ctx.strokeRect(theCanvas.width*2/3, theCanvas.height-70, 2, 2);
+
+		// draw actors
 		drawMalomer(current.x, current.y);
 		drawAngle();
-		// draw score
+
+		// show info
+		showText();
+	};
+	
+	let showText = function() {
+		ctx.font = '32px mono';
 		ctx.fillStyle = eyeColor;
-		ctx.fillText('Score: ' + score.value, 10, 50);
+		ctx.fillStyle = 'yellow';
+		ctx.fillText(currentLang.score + String(score.value).padStart(10, '0'), 10, 40);
+		ctx.fillText(currentLang.scoreHealed + score.healedNumber, 320, 40);
 		// ctx.fillText('A: ' + angle.alpha, 10, 100);
 		// ctx.fillText('B: ' + angle.beta, 10, 150);
 		// ctx.fillText('Phi: ' + polarPhi, 10, 250);
 		
+		
+		ctx.font = '16px serif';
+		ctx.fillStyle = eyeColor;
+		ctx.fillText(currentLang.bottmHint, theCanvas.width-120, theCanvas.height-20);
+		
 		if (isPaused) {
-			ctx.fillText('PAUSED', 300, 270);
+			ctx.font = '48px serif';
+			ctx.fillStyle = 'yellow';
+			ctx.fillText(currentLang.pause, (field.w-210)/2, (field.h-30)/2);
 		}
-	};
+	}
 
 	let checkAngle = function() {
 		if (angleCleared) {
@@ -328,7 +373,6 @@ $(function() {
 		let newAlpha = Math.random()*(360 - minimumAngle);  // 0-335; [a-25-1; a+25+1]
 		let angleDiff = Math.random()*(360 - 2*(minimumAngle + 5)) + minimumAngle + 5;
 		let newBeta = (newAlpha + angleDiff + 360) % 360;
-		// let newBeta = (newAlpha + Math.random()*(newAlpha + minimumAngle + 1) - minimumAngle - 1 + 360) % 360;  // 0 + (360-0-50-1) +25 = 334;   334 + (360-334-50-1) +25 = 
 		let newRadius = Math.random()*40+90;
 		angle = {
 			...angle,
@@ -368,7 +412,12 @@ $(function() {
 		//drawScene();
 	});
 	
+	$('#lang').on('change', function() {
+		currentLang = lang[this.value];
+	});
+	
 	document.body.onkeyup = function(e) {
+		console.debug(e.key, e.code, e.keyCode);
 		if (e.key == " " ||
 			e.code == "Space" ||      
 			e.keyCode == 32      
@@ -392,5 +441,16 @@ $(function() {
 <body>
 
 	<canvas id="paint"></canvas>
+	<div class="no_selection">
+		<div>
+			<span>Language / Язык:</span>
+			<select id="lang">
+				<option value="ru">Русский</option>
+				<option value="en">English</option>
+			</select>
+		</div>
+		<div>Inspired by <a href="https://t.me/mjjir" target="_blank">Мжирь</a></div>
+		<div>Coded by Alex S.</div>
+	</div>
 
 </body></html>
