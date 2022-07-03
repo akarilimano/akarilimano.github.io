@@ -18,6 +18,7 @@ canvas {
 
 body {
 	touch-action: manipulation;
+	overscroll-behaviour: contain;
 }
 
 .no_selection {
@@ -86,7 +87,7 @@ $(function() {
 			pause: 'Отдыхаем',
 			score: 'Очки: ',
 			scoreHealed: 'Вылечил углов: ',
-			bottmHint: "Пауза: 'Пробел'",
+			bottmHint: 'Пауза (Пробел)',
 		},
 		en: {
 			name: 'English',
@@ -94,10 +95,11 @@ $(function() {
 			pause: 'Chilling',
 			score: 'Score: ',
 			scoreHealed: 'Angles healed: ',
-			bottmHint: "Pause: 'Space'",
+			bottmHint: 'Pause (Space)',
 		},
 	};
 	var currentLang = lang.ru;
+	$('#pause').text(currentLang.bottmHint);
 
 	var current = {x: 400, y: 200};
 
@@ -114,6 +116,7 @@ $(function() {
 		let timeSeed = Date.now()/400;
 		let end = current;
 		// body
+		ctx.lineWidth = 3;
 		ctx.beginPath();
 		ctx.strokeStyle = eyeColor;
 		ctx.fillStyle = mainColor;
@@ -158,15 +161,16 @@ $(function() {
 		ctx.stroke();
 		// eyes
 		ctx.fillStyle = eyeColor;
-		ctx.fillRect(ml.x+20-Math.sin((x + timeSeed)/300)*2+end.x/40, ml.y+10+end.y/40, 2, 2);
-		ctx.fillRect(ml.x+ml.w-50-Math.sin((x + timeSeed)/300)*2+end.x/20, ml.y+10+end.y/40, 2, 2);
+		let eyeY = Math.min(ml.y+10+end.y/40, ml.y+ml.h-20);
+		ctx.fillRect(ml.x+20-Math.sin((x + timeSeed)/300)*2+end.x/40, eyeY, 3, 3);
+		ctx.fillRect(Math.min(ml.x+ml.w-50-Math.sin((x + timeSeed)/300)*2+end.x/20, ml.x+ml.w-10), eyeY, 3, 3);
 		// mouth
 		let mouth = {
 			x: 45,
 			w: 100
 		};
 		let startX = ml.x+mouth.x-Math.sin((x+y)/300)*2+end.x/60;
-		let startY = ml.y+30+end.y/60;
+		let startY = Math.min(ml.y+30+end.y/60, ml.y+ml.h-10);
 		let endX = startX+ml.x-mouth.x+mouth.w+Math.cos((x+y)/300+timeSeed)*2;
 		if (isAngleCleared) {
 			ctx.moveTo(startX, startY-2);
@@ -184,6 +188,7 @@ $(function() {
 		ctx.stroke();
 
 		// tail
+		ctx.lineWidth = 3;
 		ctx.fillStyle = mainColor;
 		ctx.beginPath();
 
@@ -205,7 +210,7 @@ $(function() {
 		ctx.bezierCurveTo(cp1.x, cp1.y, midcp1.x, midcp1.y, mid.x, mid.y);
 		ctx.bezierCurveTo(midcp2.x, midcp2.y, cp2.x, cp2.y, end.x, end.y);
 		// tail end
-		ctx.lineTo(end.x+10, end.y-7);
+		ctx.lineTo(end.x+12, end.y-8);
 		ctx.moveTo(end.x, end.y);
 		ctx.lineTo(end.x+7, end.y+3);
 		ctx.stroke();
@@ -265,10 +270,6 @@ $(function() {
 		ctx.fillStyle = 'yellow';
 		ctx.fillText(currentLang.score + String(score.value).padStart(10, '0'), 10, 40);
 		ctx.fillText(currentLang.scoreHealed + score.healedNumber, 10, 80);		
-		
-		ctx.font = '16px monospace';
-		ctx.fillStyle = eyeColor;
-		ctx.fillText(currentLang.bottmHint, field.w-150, field.h-20);
 		
 		if (isPaused) {
 			ctx.font = '48px monospace';
@@ -390,6 +391,7 @@ $(function() {
 	
 	$('#lang').on('change', function() {
 		currentLang = lang[this.value];
+		$('#pause').text(currentLang.bottmHint);
 	});
 
 	document.body.onkeyup = function(e) {
@@ -424,9 +426,9 @@ $(function() {
 				<option value="ru">Русский</option>
 				<option value="en">English</option>
 			</select>
-			<button id="pause">Pause</button>
+			<button id="pause">Pause (Space)</button>
 		</div>
-		<div>Inspired by <a href="https://t.me/mjjir" target="_blank">Мжирь</a></div>
+		<div><b>Inspired by <a href="https://t.me/mjjir" target="_blank">Мжирь</a></b></div>
 		<div>Report problems to <a href="https://github.com/akarilimano/akarilimano.github.io/issues" target="_blank">GitHub</a></div>
 	</div>
 
