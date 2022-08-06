@@ -100,6 +100,15 @@ $(function() {
 			scoreHealed: 'Вылечено углов: ',
 			bottmHint: 'Пауза (Пробел)',
 		},
+		ukr: {
+			name: 'Українська',
+			shortName: 'ukr',
+			title: 'Граємо в Маломіра v1',
+			pause: 'Відпочиваємо',
+			score: 'Очки: ',
+			scoreHealed: 'Вилікувано кутів: ',
+			bottmHint: 'Пауза (пробел)',
+		},
 		bel: {
 			name: 'Беларуская',
 			shortName: 'bel',
@@ -117,6 +126,15 @@ $(function() {
 			score: 'Score: ',
 			scoreHealed: 'Angles healed: ',
 			bottmHint: 'Pause (Space)',
+		},
+		cze: {
+			name: 'Česky',
+			shortName: 'cze',
+			title: 'Maloměr v1',
+			pause: 'Odpočívám',
+			score: 'Skóre: ',
+			scoreHealed: 'Vyléčené úhly: ',
+			bottmHint: 'Pauza (Mezerník)',
 		},
 		jpn: {
 			name: '日本語',
@@ -457,11 +475,13 @@ $(function() {
 	<canvas id="paint"></canvas>
 	<div class="no_selection">
 		<div>
-			<span>Language / Язык:</span>
+			<span>Language 🌐</span>
 			<select id="lang">
 				<option value="rus">Русский</option>
 				<option value="bel">Беларуская</option>
+				<option value="ukr">Українська</option>
 				<option value="eng">English</option>
+				<option value="cze">Česky</option>
 				<option value="jpn">日本語</option>
 			</select>
 			<button id="pause">Pause (Space)</button>
