@@ -1,3 +1,8 @@
+Play the game
+=============
+
+[----> PLAY <----](https://akarilimano.github.io/malomer.html)
+
 What is Mjjir?
 ==============
 
